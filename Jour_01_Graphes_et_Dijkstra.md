@@ -1,7 +1,5 @@
 # Jour 1 — Représenter un monde et calculer un plus court chemin
 
-**S1P2 · GTECH 2 · Lundi 26 octobre 2026**
-
 Aujourd’hui, vous allez écrire un calcul de chemin qui fonctionne sans moteur graphique. À partir d’un graphe pondéré, votre programme trouvera un chemin de coût minimal, expliquera son résultat et traitera les situations où aucun chemin n’existe. Cette séparation est volontaire : un algorithme correct doit pouvoir être testé sans ouvrir une fenêtre.
 
 > **Illustrations locales :** conservez le dossier `illustrations/` à côté de ce fichier. Les GIF sont animés dans les lecteurs compatibles ; une image fixe du résultat est également disponible.
