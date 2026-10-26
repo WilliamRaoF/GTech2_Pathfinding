@@ -2,8 +2,6 @@
 
 Aujourd’hui, vous allez écrire un calcul de chemin qui fonctionne sans moteur graphique. À partir d’un graphe pondéré, votre programme trouvera un chemin de coût minimal, expliquera son résultat et traitera les situations où aucun chemin n’existe. Cette séparation est volontaire : un algorithme correct doit pouvoir être testé sans ouvrir une fenêtre.
 
-> **Illustrations locales :** conservez le dossier `illustrations/` à côté de ce fichier. Les GIF sont animés dans les lecteurs compatibles ; une image fixe du résultat est également disponible.
-
 ## 1. Comment suivre ce cours
 
 Lisez une section, réalisez l’action demandée, puis vérifiez le résultat avant de continuer. Les corrigés sont regroupés dans des blocs repliables. Essayez d’abord par vous-même. Tous les blocs marqués **fichier complet** peuvent être copiés tels quels. Les autres sont des exemples ou des modifications localisées.
