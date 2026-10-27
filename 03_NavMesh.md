@@ -85,7 +85,7 @@ Les régions 0, 1 et 2 forment un L. La région 3 est déconnectée.
 
 ![Régions convexes, portails et trajet dans le couloir en L.](illustrations/j3_navmesh_portails.png)
 
-*Le trajet vert passe par les centres et les milieux des portails. Le segment rouge traverse une zone non navigable. Conservez le dossier `illustrations/` à côté du cours.*
+*Le trajet vert passe par les centres et les milieux des portails. Le segment rouge traverse une zone non navigable.*
 
 Avant de programmer, calculez : le milieu de chaque portail, les deux coûts d’arête, la suite de régions entre `(1,1)` et `(5,5)`. Faites vérifier ces résultats par un autre binôme.
 
