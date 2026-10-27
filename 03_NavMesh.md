@@ -1,4 +1,4 @@
-# Jour 3 — Atelier : construire et éprouver un NavMesh
+# Atelier : construire et éprouver un NavMesh
 
 
 Un chemin peut être correct dans un graphe et traverser un mur à l’écran. Aujourd’hui, vous allez construire le lien entre les surfaces du niveau, leurs connexions et le trajet suivi par un personnage.
