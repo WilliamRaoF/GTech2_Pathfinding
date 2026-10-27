@@ -390,7 +390,7 @@ Faites tester votre carte par un autre binôme qui choisit un départ et une arr
 
 **C — Réduire les détours.** Comparez notre trajet avec un trajet passant seulement par les milieux des portails. Expliquez pourquoi relier deux portails d’une même région convexe est valide, et pourquoi le coût de notre graphe n’est plus nécessairement celui du nouveau trajet. N’annoncez pas un plus court chemin géométrique sans preuve.
 
-## 13. Bilan et passage au jour 4
+## 13. Bilan
 
 Expliquez sans lire le code : pourquoi la convexité est utile ; ce qu’est un portail ; la différence entre `NoPath` et `OutsideNavMesh` ; pourquoi 6 et 8 sont tous deux corrects ; pourquoi un chemin pour un point ne garantit pas le passage d’un corps.
 
