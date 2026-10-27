@@ -329,16 +329,6 @@ int main() {
 
 Pour tester une exception attendue, utilisez `try/catch` et vérifiez qu’elle a bien été déclenchée. Ne laissez pas une exception prévue arrêter toute la suite de tests.
 
-### Compilation sans G++
-
-Dans le terminal de développement Visual Studio, depuis le dossier des fichiers :
-
-```bat
-cl /nologo /std:c++17 /EHsc /W4 main.cpp /Fe:jour3.exe
-jour3.exe
-```
-
-Dans l’interface Visual Studio, activez C++17 et lancez avec Ctrl+F5. Les outils C++ doivent être installés ; VS Code seul ne suffit pas. Pour les tests utilisant `assert`, vérifiez que `NDEBUG` n’est pas défini. Les exemples sont indépendants de raylib.
 
 ## 9. Enquête — Pourquoi le segment direct échoue-t-il ?
 
