@@ -150,6 +150,19 @@ Les déclarations annoncent des fonctions qu’il reste à définir. Un appel sa
 
 `left` et `right` sont ici seulement les noms des extrémités stockées. Ils ne fournissent pas encore une orientation permettant d’utiliser directement un algorithme funnel.
 
+### Rôle des fonctions mathématiques
+
+| Fonction | Rôle |
+|---|---|
+| `a + b` | Additionner des coordonnées |
+| `a - b` | Obtenir un déplacement |
+| `a * s` | Modifier l’échelle d’un vecteur |
+| `Cross(a, b)` | Mesurer une orientation signée |
+| `Length(a)` | Mesurer la longueur d’un vecteur |
+| `Distance(a, b)` | Mesurer l’écart entre deux positions |
+| `Finite(p)` | Vérifier que les coordonnées ne sont ni infinies ni NaN |
+| `SamePoint(a, b)` | Comparer deux positions avec une tolérance |
+
 ## 5. Programmer la localisation d’un point
 
 ### 5.1 Préparer un polygone
