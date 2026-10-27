@@ -152,16 +152,43 @@ Les déclarations annoncent des fonctions qu’il reste à définir. Un appel sa
 
 ### Rôle des fonctions mathématiques
 
-| Fonction | Rôle |
-|---|---|
-| `a + b` | Additionner des coordonnées |
-| `a - b` | Obtenir un déplacement |
-| `a * s` | Modifier l’échelle d’un vecteur |
-| `Cross(a, b)` | Mesurer une orientation signée |
-| `Length(a)` | Mesurer la longueur d’un vecteur |
-| `Distance(a, b)` | Mesurer l’écart entre deux positions |
-| `Finite(p)` | Vérifier que les coordonnées ne sont ni infinies ni NaN |
-| `SamePoint(a, b)` | Comparer deux positions avec une tolérance |
+Le type `Point` représente une position ou un vecteur dans le plan XZ :
+
+- Une **position** indique où se trouve un élément.
+- Un **vecteur** représente un déplacement, avec une direction et une longueur.
+
+| Fonction | Rôle | Exemple |
+|---|---|---|
+| `a + b` | Additionne les coordonnées. Permet notamment d’ajouter un déplacement à une position. | `(2,1) + (3,4) = (5,5)` |
+| `a - b` | Soustrait les coordonnées. Si a et b sont des positions, le résultat est le vecteur allant de b vers a. | `(5,4) - (2,1) = (3,3)` |
+| `a * s` | Multiplie chaque coordonnée par le nombre s. Permet d’agrandir, réduire ou inverser un vecteur. | `(4,2) * 0.5 = (2,1)` |
+| `Cross(a, b)` | Calcule `a.x * b.z - a.z * b.x`. Son signe permet de déterminer une orientation entre deux vecteurs. | `Cross((4,0), (2,1)) = 4` |
+| `Length(a)` | Calcule la longueur d’un vecteur avec le théorème de Pythagore : `sqrt(x² + z²)`. | `Length((3,4)) = 5` |
+| `Distance(a, b)` | Calcule la distance entre deux positions en mesurant le vecteur qui les sépare : `Length(a-b)`. | `Distance((1,1), (4,5)) = 5` |
+| `Finite(p)` | Vérifie que les deux coordonnées sont des nombres finis : ni infinis, ni NaN. Cela ne vérifie pas que le point appartient au NavMesh. | `Finite((2,3))` renvoie `true`. |
+| `SamePoint(a, b)` | Considère deux positions comme identiques si leur distance est inférieure à `1e-8`, soit `0,00000001`. Cela tolère de petites différences d’arrondi. | Deux points distants de `0,000000001` sont considérés identiques. |
+
+#### Exemple : calculer le milieu d’un portail
+
+Pour deux extrémités a et b :
+
+`milieu = (a + b) * 0.5`
+
+Avec a=(2,0) et b=(6,4), on obtient le milieu (4,2).
+
+#### Exemple : situer un point par rapport à un bord
+
+Pour un bord orienté de A vers B et un point P :
+
+`Cross(B-A, P-A)`
+
+Avec X vers la droite et Z vers le haut sur le dessin :
+
+- Un résultat **positif** place P à gauche du bord orienté.
+- Un résultat **négatif** place P à droite.
+- Un résultat **nul** indique que les points sont alignés, sans garantir que P appartient au segment.
+
+Ce test sera utilisé pour vérifier l’appartenance à un polygone convexe.
 
 ## 5. Programmer la localisation d’un point
 
