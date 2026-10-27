@@ -1,7 +1,5 @@
 # Jour 3 — Atelier : construire et éprouver un NavMesh
 
-**S1P2 · GTECH 2 · Mercredi 28 octobre 2026**  
-**Auteur: William Rao Fernandes**
 
 Un chemin peut être correct dans un graphe et traverser un mur à l’écran. Aujourd’hui, vous allez construire le lien entre les surfaces du niveau, leurs connexions et le trajet suivi par un personnage.
 
