@@ -3,100 +3,105 @@
 #include <cassert>
 #include <cmath>
 #include <iostream>
-#include <stdexcept>
+#include <limits>
 
 int main() {
-    NavMesh mesh = MakeDemoMesh();
+    const NavMesh mesh = MakeDemoMesh();
 
-    // Deux portails et quatre sommets de graphe.
-    assert(mesh.portals.size() == 2);
-    assert(mesh.graph.size() == 4);
+    // Même requête avec les deux algorithmes.
+    const auto a = FindNavPath(
+        mesh, { 1,1 }, { 5,5 }, true
+    );
 
-    // Nombre de voisins attendu.
-    assert(mesh.graph[0].size() == 1);
-    assert(mesh.graph[1].size() == 2);
-    assert(mesh.graph[2].size() == 1);
-    assert(mesh.graph[3].empty());
+    const auto d = FindNavPath(
+        mesh, { 1,1 }, { 5,5 }, false
+    );
 
-    // Recherche du portail dans les deux sens.
-    const Portal* forward = mesh.Between(0, 1);
-    const Portal* backward = mesh.Between(1, 0);
+    assert(a.search.status == Status::Found);
+    assert(d.search.status == Status::Found);
 
-    assert(forward != nullptr);
-    assert(backward == forward);
-    assert(mesh.Between(0, 3) == nullptr);
+    assert(std::abs(a.search.cost - d.search.cost) < 1e-4);
 
-    // Milieux des deux portails.
-    assert(SamePoint(forward->Middle(), Point{4,1}));
+    // Coût du graphe : 0 -> 1 -> 2.
+    assert(std::abs(a.search.cost - 6.0) < 1e-4);
 
-    const Portal* second = mesh.Between(1, 2);
-    assert(second != nullptr);
-    assert(SamePoint(second->Middle(), Point{5,2}));
+    // Trajet complet, avec raccordements départ et arrivée.
+    assert(std::abs(a.routeCost - 8.0) < 1e-4);
 
-    // Toutes les connexions de cette carte coûtent 3.
-    for (const auto& edges : mesh.graph) {
-        for (const Edge& edge : edges) {
-            assert(std::abs(edge.cost - 3.0) < 1e-4);
-        }
+    assert((a.search.nodes == std::vector<int>{0, 1, 2}));
+
+    const std::vector<Point> expectedPoints = {
+        {1,1}, // Départ
+        {2,1}, // Centre région 0
+        {4,1}, // Milieu portail 0-1
+        {5,1}, // Centre région 1
+        {5,2}, // Milieu portail 1-2
+        {5,4}, // Centre région 2
+        {5,5} // Arrivée
+    };
+
+    assert(a.points.size() == expectedPoints.size());
+
+    for (std::size_t i = 0; i < expectedPoints.size(); ++i) {
+        assert(SamePoint(a.points[i], expectedPoints[i]));
     }
 
-    // Reconstruire ne doit pas doubler les connexions.
-    mesh.BuildGraph();
+    // Arrivée sur l'île : localisable, mais inaccessible.
+    const auto island =
+        FindNavPath(mesh, { 1,1 }, { 9,1 });
 
-    assert(mesh.portals.size() == 2);
-    assert(mesh.graph[0].size() == 1);
-    assert(mesh.graph[1].size() == 2);
-    assert(mesh.graph[2].size() == 1);
+    assert(island.search.status == Status::NoPath);
+    assert(island.points.empty());
+    assert(std::isinf(island.routeCost));
 
-    // Rejeter un portail de longueur nulle.
-    NavMesh invalid = mesh;
-    invalid.portals.push_back({0, 1, {4,1}, {4,1}});
+    // Arrivée extérieure.
+    const auto outside =
+        FindNavPath(mesh, { 1,1 }, { 3,3 });
 
-    bool rejected = false;
+    assert(outside.search.status == Status::OutsideNavMesh);
+    assert(outside.points.empty());
 
-    try {
-        invalid.BuildGraph();
-    } catch (const std::invalid_argument&) {
-        rejected = true;
-    }
+    // Deux positions dans une même région.
+    const auto local =
+        FindNavPath(mesh, { 1,1 }, { 3,1 });
 
-    assert(rejected);
+    assert(local.search.status == Status::Found);
+    assert(local.points.size() == 2);
+    assert(std::abs(local.search.cost) < 1e-4);
+    assert(std::abs(local.routeCost - 2.0) < 1e-4);
 
-    // Rejeter un indice inexistant.
-    invalid = mesh;
-    invalid.portals.push_back({0, 99, {4,0}, {4,2}});
+    // Départ et arrivée identiques.
+    const auto same =
+        FindNavPath(mesh, { 1,1 }, { 1,1 });
 
-    rejected = false;
+    assert(same.search.status == Status::Found);
+    assert(same.points.size() == 1);
+    assert(same.routeCost == 0.0);
 
-    try {
-        invalid.BuildGraph();
-    } catch (const std::invalid_argument&) {
-        rejected = true;
-    }
+    // Coordonnées invalides.
+    const double infinity =
+        std::numeric_limits<double>::infinity();
 
-    assert(rejected);
+    const auto invalid =
+        FindNavPath(mesh, { infinity,1 }, { 5,5 });
 
-    // Rejeter un portail hors des régions.
-    invalid = mesh;
-    invalid.portals.push_back({0, 1, {20,0}, {20,2}});
+    assert(invalid.search.status == Status::InvalidInput);
 
-    rejected = false;
+    // Graphe et portails volontairement désynchronisés.
+    NavMesh broken = mesh;
+    broken.portals.clear();
 
-    try {
-        invalid.BuildGraph();
-    } catch (const std::invalid_argument&) {
-        rejected = true;
-    }
+    const auto inconsistent =
+        FindNavPath(broken, { 1,1 }, { 5,5 });
 
-    assert(rejected);
+    assert(inconsistent.search.status == Status::InvalidInput);
+    assert(inconsistent.points.empty());
 
-    std::cout << "Tests partie 6 OK\n";
+    std::cout << "Tests partie 7 OK\n";
+    std::cout << "Cout du graphe : " << a.search.cost << '\n';
+    std::cout << "Longueur du trajet : " << a.routeCost << '\n';
 
-    // Afficher le graphe obtenu.
-    for (int u = 0; u < static_cast<int>(mesh.graph.size()); ++u) {
-        for (const Edge& edge : mesh.graph[u]) {
-            std::cout << u << " -> " << edge.to
-                      << " : cout " << edge.cost << '\n';
-        }
+    for (Point p : a.points) {
+        std::cout << '(' << p.x << ',' << p.z << ")\n";
     }
 }

@@ -127,3 +127,81 @@ NavMesh MakeDemoMesh() {
     mesh.BuildGraph();
     return mesh;
 }
+
+NavPath FindNavPath(const NavMesh& mesh,Point start,Point goal,bool useAStar) 
+{
+    NavPath result;
+
+    if (!Finite(start) || !Finite(goal)) {
+        return result;
+    }
+
+    const int startRegion = mesh.Locate(start);
+    const int goalRegion = mesh.Locate(goal);
+
+    if (startRegion < 0 || goalRegion < 0) {
+        result.search.status = Status::OutsideNavMesh;
+        return result;
+    }
+
+    auto h = [&](int n) -> double {
+        return Distance(
+            mesh.polygons[n].center,
+            mesh.polygons[goalRegion].center
+        );
+     };
+
+    if (useAStar) {
+        result.search = AStar(mesh.graph,startRegion,goalRegion,h);
+    }
+    else {
+        result.search = Dijkstra(mesh.graph,startRegion,goalRegion);
+    }
+
+    if (result.search.status != Status::Found) {
+        result.search.status = Status::NoPath;
+        return result;
+    }
+
+    auto append = [&](Point point) {
+        if (result.points.empty() ||
+            !SamePoint(result.points.back(), point)) {
+            result.points.push_back(point);
+        }
+        };
+
+    append(start);
+
+    if (startRegion != goalRegion) {
+        append(mesh.polygons[startRegion].center);
+
+        for (std::size_t i = 1;
+            i < result.search.nodes.size();
+            ++i) {
+            const int previous = result.search.nodes[i - 1];
+            const int next = result.search.nodes[i];
+
+            const Portal* portal =
+                mesh.Between(previous, next);
+
+            if (portal == nullptr) {
+                return NavPath{};
+            }
+
+            append(portal->Middle());
+            append(mesh.polygons[next].center);
+        }
+    }
+
+    append(goal);
+
+    result.routeCost = 0.0;
+
+    for (std::size_t i = 1; i < result.points.size(); ++i) {
+        result.routeCost += Distance(
+            result.points[i - 1],
+            result.points[i]
+        );
+    }
+    return result;
+}
