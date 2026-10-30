@@ -13,9 +13,22 @@ void NavAgent::Plan(const NavMesh&, Point) {
     throw std::logic_error("A implementer : NavAgent::Plan");
 }
 
-void NavAgent::Follow(double) {
-    // TODO : budget de distance, suivi de plusieurs points, aucun dépassement.
-    throw std::logic_error("A implementer : NavAgent::Follow");
+void NavAgent::Follow(double dt) {
+    if (path.search.status != Status::Found || dt <= 0 || speed <= 0) return;
+    double budget = speed * dt;
+    while (!Finished() && budget > 0) {
+        Point delta = path.points[next] - position;
+        double distance = Length(delta);
+        if (distance < 1e-8) { ++next; continue; }
+        if (distance <= budget) {
+            position = path.points[next++];
+            budget -= distance;
+        }
+        else {
+            position = position + delta * (budget / distance);
+            budget = 0;
+        }
+    }
 }
 
 void Enemy::Update(const NavMesh&, Target&, double) {
