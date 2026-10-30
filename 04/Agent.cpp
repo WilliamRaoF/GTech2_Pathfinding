@@ -8,9 +8,18 @@ void NavAgent::Clear() { path=NavPath{}; next=0; hasGoal=false; }
 
 bool NavAgent::Finished() const { return next>=path.points.size(); }
 
-void NavAgent::Plan(const NavMesh&, Point) {
-    // TODO : politique de recalcul, appel à FindNavPath et compteur.
-    throw std::logic_error("A implementer : NavAgent::Plan");
+void NavAgent::Plan(const NavMesh& mesh, Point goal) {
+    if (requestCooldown > 0.0) return;
+    bool changed = !hasGoal || Distance(goal, lastGoal) > 0.75;
+    bool retry = path.search.status != Status::Found;
+    bool stoppedFar = Finished() && Distance(position, goal) > 0.1;
+    if (!changed && !retry && !stoppedFar) return;
+    path = FindNavPath(mesh, position, goal, useAStar);
+    next = path.points.size() > 1 ? 1 : path.points.size();
+    lastGoal = goal;
+    hasGoal = true;
+    requestCooldown = 0.3;
+    ++requests;
 }
 
 void NavAgent::Follow(double dt) {
