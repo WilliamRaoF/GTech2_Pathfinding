@@ -1,6 +1,8 @@
 #pragma once
 #include "NavMesh.hpp"
 
+bool SegmentInside(const NavMesh& mesh, Point a, Point b);
+
 struct NavAgent {
     Point position;
     double speed = 2.0;
