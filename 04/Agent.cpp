@@ -39,7 +39,42 @@ void NavAgent::Follow(double dt) {
     }
 }
 
-void Enemy::Update(const NavMesh&, Target&, double) {
-    // TODO : perception, priorités, automate, poursuite et attaque.
-    throw std::logic_error("A implementer : Enemy::Update");
+void Enemy::Update(const NavMesh& mesh, Target& target, double dt) {
+    // Contrat : dt fini et >=0, positions initiales dans le mesh.
+    nav.Tick(dt);
+    if (hp <= 0) { state = EnemyState::Dead; nav.Clear(); return; }
+    if (state == EnemyState::Dead) return;
+    const double distance = Distance(nav.position, target.position);
+    if (target.hp <= 0 || distance > loseRange) {
+        state = EnemyState::Idle; nav.Clear(); timer = 0; return;
+    }
+    switch (state) {
+    case EnemyState::Idle:
+        if (distance <= detectRange) state = EnemyState::Chase;
+        break;
+    case EnemyState::Chase:
+        if (distance <= attackRange && SegmentInside(mesh, nav.position, target.position)) {
+            state = EnemyState::Windup;
+            timer = windupDuration;
+        }
+        else {
+            nav.Plan(mesh, target.position);
+            nav.Follow(dt);
+        }
+        break;
+    case EnemyState::Windup:
+        timer -= dt;
+        if (timer <= 0) {
+            if (distance <= attackRange && SegmentInside(mesh, nav.position, target.position))
+                target.hp = std::max(0, target.hp - damage);
+            state = EnemyState::Recover;
+            timer = recoverDuration;
+        }
+        break;
+    case EnemyState::Recover:
+        timer -= dt;
+        if (timer <= 0) state = EnemyState::Chase;
+        break;
+    case EnemyState::Dead: break;
+    }
 }
